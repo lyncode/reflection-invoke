@@ -4,7 +4,7 @@ apply plugin: "jacoco"
 
 sourceCompatibility = 1.7
 targetCompatibility = 1.7
-version = '1.0'
+version = '1.0.0'
 group = 'com.lyncode'
 
 repositories {
