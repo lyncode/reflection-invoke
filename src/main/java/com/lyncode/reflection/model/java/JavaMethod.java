@@ -60,5 +60,8 @@ public class JavaMethod {
         return Optional.absent();
     }
 
+    public String name () {
+        return method.getName();
+    }
 
 }
