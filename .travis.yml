@@ -1,3 +1,11 @@
 language: java
+
 jdk:
-   - oraclejdk7
+- oraclejdk7
+
+env:
+  global:
+     - secure: BIxekZgBoxTFASGQKHJX5PE2tAjRzqAr2c8MZ/RxOczFks8RnTCEvLPUa7+jxSyy6LTHignO2auPRFwm6BmzcLOmu5sbPBSaN/l3hD/88woPzfz6oQ2ubjsJLZhdlH3F+roezxeVp+vD5p25Tg9m+KSxfwSxUz79tm7UmDRL3QE=
+
+after_success:
+  - gradle jacocoTestReport coveralls
