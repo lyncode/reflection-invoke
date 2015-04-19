@@ -3,7 +3,6 @@ package com.lyncode.reflection.util;
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
-import com.lyncode.reflection.input.InputParameter;
 
 import java.util.ArrayList;
 import java.util.List;

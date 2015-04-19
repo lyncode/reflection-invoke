@@ -2,70 +2,44 @@ package com.lyncode.reflection.resolver.argument;
 
 
 import com.google.common.base.Optional;
-import com.lyncode.reflection.convert.Converter;
-import com.lyncode.reflection.input.InputParameter;
-import com.lyncode.reflection.input.InputParameterResolver;
-import com.lyncode.reflection.input.InputParameterValueResolver;
+import com.lyncode.reflection.input.InputParameterResolverContext;
 import com.lyncode.reflection.model.Value;
 import com.lyncode.reflection.model.java.JavaMethodArgument;
+import org.junit.Before;
 import org.junit.Test;
 
-import java.util.ArrayList;
-
-import static junit.framework.TestCase.assertEquals;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class InputArgumentResolverTest {
-    private final InputParameterResolver<Integer> inputParameterResolver = mock(InputParameterResolver.class);
-    private final ArrayList<InputParameter<Integer>> inputParameters = new ArrayList<InputParameter<Integer>>();
-    private final InputParameterValueResolver<Integer> inputParameterValueResolver = mock(InputParameterValueResolver.class);
-    private final Converter converter = mock(Converter.class);
     private final JavaMethodArgument methodArgument = mock(JavaMethodArgument.class);
-    private final InputArgumentResolverConfiguration<Integer> configuration = new InputArgumentResolverConfiguration<Integer>(
-            converter, inputParameterResolver, inputParameterValueResolver
-    );
-    private InputArgumentResolver<Integer> underTest = new InputArgumentResolver<Integer>(
-            configuration,
-            inputParameters
-    );
+    private final InputParameterResolverContext<Integer> context = mock(InputParameterResolverContext.class);
+    private InputArgumentValueResolver<Integer> resolver = mock(InputArgumentValueResolver.class);
+    private InputArgumentResolver<Integer> underTest = new InputArgumentResolver<Integer>(resolver, context);
+
+    @Before
+    public void setUp() throws Exception {
+        when(context.clone()).thenReturn(context);
+    }
 
     @Test
     public void resolveWhenParameterResolverReturnsEmpty() throws Exception {
-        when(inputParameterResolver.resolve(methodArgument, inputParameters)).thenReturn(Optional.<Integer>absent());
+        when(resolver.resolve(methodArgument, context)).thenReturn(Optional.<Value>absent());
 
         Optional<Value> result = underTest.resolve(methodArgument);
 
         assertThat(result.isPresent(), is(false));
+        verify(context, never()).merge(any(InputParameterResolverContext.class));
     }
 
     @Test
-    public void resolveWhenParameterNotConvertible() throws Exception {
-        when(inputParameterResolver.resolve(methodArgument, inputParameters)).thenReturn(Optional.of(1));
-        when(inputParameterValueResolver.resolve(1)).thenReturn(1);
-        when(converter.convert(1, String.class)).thenReturn(Optional.<Value>absent());
-        when(methodArgument.type()).thenReturn(String.class);
-
-        Optional<Value> result = underTest.resolve(methodArgument);
-
-        assertThat(result.isPresent(), is(false));
-    }
-
-    @Test
-    public void resolveWhenParameterConvertible() throws Exception {
-        String value = "wow";
-        inputParameters.add(new InputParameter<Integer>(1, false));
-        when(inputParameterResolver.resolve(methodArgument, inputParameters)).thenReturn(Optional.of(1));
-        when(inputParameterValueResolver.resolve(1)).thenReturn(1);
-        when(converter.convert(1, String.class)).thenReturn(Optional.of(new Value(value)));
-        when(methodArgument.type()).thenReturn(String.class);
+    public void resolveWhenParameterResolverReturnsSome() throws Exception {
+        when(resolver.resolve(methodArgument, context)).thenReturn(Optional.of(new Value("one")));
 
         Optional<Value> result = underTest.resolve(methodArgument);
 
         assertThat(result.isPresent(), is(true));
-        assertEquals(value, result.get().getValue());
-        assertThat(inputParameters.get(0).isUsed(), is(true));
+        verify(context).merge(any(InputParameterResolverContext.class));
     }
 }

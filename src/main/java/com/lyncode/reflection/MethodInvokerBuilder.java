@@ -3,6 +3,7 @@ package com.lyncode.reflection;
 import com.lyncode.reflection.convert.CompositeConverter;
 import com.lyncode.reflection.convert.Converter;
 import com.lyncode.reflection.convert.IdentityConverter;
+import com.lyncode.reflection.input.InputParameterResolverContextFactory;
 import com.lyncode.reflection.input.InputParameterResolverFactory;
 import com.lyncode.reflection.input.InputParameterValueResolver;
 import com.lyncode.reflection.resolver.BeanMethodResolverImpl;
@@ -54,9 +55,9 @@ public class MethodInvokerBuilder<T> {
     }
 
     public MethodInvoker<T> build () {
+        CompositeConverter compositeConverter = new CompositeConverter(converters);
         return new MethodInvokerImpl<T>(new BeanMethodResolverImpl<T>(
-                new CompositeConverter(converters), inputParameterResolverFactory, inputParameterValueResolver,
-                new InputArgumentResolverFactory(),
+                new InputArgumentResolverFactory<T>(compositeConverter, inputParameterValueResolver, inputParameterResolverFactory, new InputParameterResolverContextFactory<T>()),
                 new ParameterResolver<T>(new CompositeArgumentResolver(argumentResolvers))
         ));
     }
