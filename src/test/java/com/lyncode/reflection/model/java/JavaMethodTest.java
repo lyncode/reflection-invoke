@@ -1,5 +1,6 @@
 package com.lyncode.reflection.model.java;
 
+import com.google.common.base.Optional;
 import org.junit.Test;
 
 import static org.hamcrest.core.Is.is;
@@ -43,7 +44,17 @@ public class JavaMethodTest {
         assertThat(underTest.isVarArgs(), is(true));
     }
 
+    @Test
+    public void annotation() throws Exception {
+        underTest = new JavaMethod(TestClass.class.getDeclaredMethod("test"));
+
+        Optional<Test> result = underTest.annotation(Test.class);
+
+        assertThat(result.isPresent(), is(true));
+    }
+
     public static class TestClass {
+        @Test
         public String test () { return "one"; }
         public String test (String arg) { return arg; }
         public String a (String... arg) { return "a"; }

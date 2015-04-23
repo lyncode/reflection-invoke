@@ -10,18 +10,22 @@ import java.util.List;
 
 public class JavaMethod {
     private final Method method;
+    private List<JavaMethodArgument> arguments;
 
     public JavaMethod(Method method) {
         this.method = method;
     }
 
     public List<JavaMethodArgument> arguments() {
-        List<JavaMethodArgument> result = new ArrayList<JavaMethodArgument>();
-        Class<?>[] parameterTypes = method.getParameterTypes();
-        for (int i = 0; i < parameterTypes.length; i++) {
-            result.add(new JavaMethodArgument(this, i));
+        if (arguments == null) {
+            List<JavaMethodArgument> result = new ArrayList<JavaMethodArgument>();
+            Class<?>[] parameterTypes = method.getParameterTypes();
+            for (int i = 0; i < parameterTypes.length; i++) {
+                result.add(new JavaMethodArgument(this, i));
+            }
+            arguments = result;
         }
-        return result;
+        return arguments;
     }
 
     public Object invoke(Object bean, Object[] arguments) throws InvocationTargetException, IllegalAccessException {
@@ -43,7 +47,7 @@ public class JavaMethod {
     public <T extends Annotation> Optional<T> argumentAnnotation(int position, Class<T> type) {
         Annotation[] annotations = method.getParameterAnnotations()[position];
         for (Annotation annotation : annotations) {
-            if (annotation.getClass().equals(type)) {
+            if (annotation.annotationType().equals(type)) {
                 return Optional.of(type.cast(annotation));
             }
         }
@@ -53,7 +57,7 @@ public class JavaMethod {
     public <T extends Annotation> Optional<T> annotation(Class<T> type) {
         Annotation[] annotations = method.getAnnotations();
         for (Annotation annotation : annotations) {
-            if (annotation.getClass().equals(type)) {
+            if (annotation.annotationType().equals(type)) {
                 return Optional.of(type.cast(annotation));
             }
         }

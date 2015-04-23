@@ -70,7 +70,5 @@ public class InputParameterResolverContext<T> {
         public InputParameter(T value) {
             this.value = value;
         }
-
-
     }
 }
